@@ -1,46 +1,21 @@
-# Wiring and soldering
+# Wiring
 
-> **3.3 V only.** Disconnect USB power before soldering. Verify continuity and the absence of shorts before reconnecting power.
+## BM5602
 
-## Required connections
+![BM5602 wiring](images/bm5602-wiring.png)
 
-| BM5602 | Module pin | M5Stack ATOM Lite | Purpose |
-|---|---:|---|---|
-| GND | — | GND | Ground |
-| 3V3 | — | 3V3 | Power |
-| CSN | — | GPIO22 | SPI chip select |
-| SCK | — | GPIO23 | SPI clock |
-| SDIO | — | GPIO19 | SPI MOSI |
-| GIO2 | pin 6 | GPIO33 | SPI MISO / direct TX data |
-| GIO3 | pin 8 | GPIO25 | TBCLK synchronization |
+## M5Stack ATOM Lite
 
-The seventh connection, **GIO3/TBCLK → GPIO25**, is mandatory. Packet-engine transmission looked correct in software but was rejected by the tested lamp. Clock-synchronous direct mode produced the bit-exact stock frame accepted by the lamp.
+![M5Stack ATOM Lite wiring](images/atom-lite-wiring.png)
 
-## Correct BM5602 pin identification
+| BM5602 | Pin | M5Stack ATOM Lite |
+|---|---:|---|
+| GND | 1 | GND |
+| 3V3 | 2 | 3V3 |
+| CSN | 4 | GPIO22 |
+| SCK | 5 | GPIO23 |
+| GIO2 | 6 | GPIO33 |
+| SDIO | 7 | GPIO19 |
+| GIO3 / TBCLK | 8 | GPIO25 |
 
-Do not confuse GIO2 and GIO3:
-
-- **pin 6 = GIO2**
-- **pin 8 = GIO3 / TBCLK**
-
-![Correct BM5602 pinout](images/bm5602-pinout.png)
-
-## TBCLK solder point
-
-![BM5602 GIO3/TBCLK solder point](images/bm5602-tbclk-solder.png)
-
-Use a fine tip, flux, and a thin insulated wire. Tin the wire first and keep heating time short.
-
-## ATOM Lite GPIO25 solder point
-
-![ATOM Lite GPIO25 solder point](images/atom-lite-g25-solder.jpg)
-
-## Before flashing
-
-Check with a multimeter:
-
-1. GND continuity between both boards.
-2. No short between 3V3 and GND.
-3. GIO2 reaches GPIO33 only.
-4. GIO3 reaches GPIO25 only.
-5. No bridge between adjacent BM5602 pins.
+Pins 3 and 9 are not connected. Supply voltage is 3.3 V.
