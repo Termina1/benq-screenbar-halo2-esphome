@@ -36,6 +36,7 @@ See **[Wiring and soldering](docs/WIRING.md)** before powering the boards.
 | `home-assistant/package.yaml` | Optional authenticated REST integration with guarded controller-state synchronization |
 | `home-assistant/dashboard.yaml` | Compact stock-card dashboard |
 | `home-assistant/secrets.example.yaml` | Matching Home Assistant web credentials |
+| [`docs/IMPLEMENTATION_NOTES.md`](docs/IMPLEMENTATION_NOTES.md) | Differences from the packet-engine approach and why it failed on our tested lamp |
 
 ## Install
 
@@ -152,6 +153,8 @@ Only even-PID request frames are treated as authoritative controller state. Odd-
 ## Prior art and research
 
 The interoperability work was informed by the public BM5602 examples and by [kuzmin-no/BenQ_ScreenBar_HALO_2_HA_integration](https://github.com/kuzmin-no/BenQ_ScreenBar_HALO_2_HA_integration). This repository provides an independently implemented ESP-IDF/ESPHome C++ direct-mode driver, the recovered framing/CRC behavior, and the Home Assistant integration used by this project.
+
+See **[Why this implementation uses synchronized direct mode](docs/IMPLEMENTATION_NOTES.md)** for the exact architectural differences, failed hypotheses, recovered frame format, and end-to-end validation criteria.
 
 ## Disclaimer
 
