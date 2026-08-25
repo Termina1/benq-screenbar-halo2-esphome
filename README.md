@@ -1,5 +1,7 @@
 # BenQ ScreenBar HALO 2 · ESPHome radio bridge
 
+[![Validate](https://github.com/Termina1/benq-screenbar-halo2-esphome/actions/workflows/validate.yml/badge.svg)](https://github.com/Termina1/benq-screenbar-halo2-esphome/actions/workflows/validate.yml)
+
 Control a **BenQ ScreenBar HALO 2** from Home Assistant using a **BM5602** radio module and an **M5Stack ATOM Lite**. The bridge supports power, front/back light, both brightness channels, color temperature, lamp mode, ultrasonic presence mode, and state updates from the original wireless controller.
 
 This is working firmware, not a packet-engine mock: transmission is synchronized to the BM5602 `TBCLK` output and uses the stock on-air framing and CRC.
