@@ -1,0 +1,99 @@
+# Hallmark · pre-emit critique: P5 H5 E4 S5 R5 V4
+# Hallmark · macrostructure: Workbench · genre: modern-minimal · theme: Cobalt
+# Audience: one user, mobile + desktop · Use: immediate task-light control · Tone: utilitarian
+
+title: Office
+icon: mdi:desk
+views:
+  - title: ScreenBar
+    path: screenbar
+    icon: mdi:monitor-shimmer
+    badges: []
+    cards:
+      - type: heading
+        heading: ScreenBar HALO 2
+        heading_style: title
+        icon: mdi:monitor-shimmer
+
+      - type: tile
+        entity: input_boolean.office_screenbar_power
+        name: Power
+        icon: mdi:power
+        color: amber
+        hide_state: true
+        vertical: false
+        tap_action:
+          action: toggle
+
+      - type: heading
+        heading: Light
+        heading_style: subtitle
+        icon: mdi:lightbulb-multiple-outline
+
+      - type: grid
+        columns: 2
+        square: false
+        cards:
+          - type: tile
+            entity: input_boolean.office_screenbar_front_lamp
+            name: Front
+            icon: mdi:desk-lamp
+            color: amber
+            hide_state: true
+            vertical: true
+            tap_action:
+              action: toggle
+          - type: tile
+            entity: input_boolean.office_screenbar_back_lamp
+            name: Back
+            icon: mdi:wall-sconce-flat-outline
+            color: deep-orange
+            hide_state: true
+            vertical: true
+            tap_action:
+              action: toggle
+
+      - type: tile
+        entity: input_number.office_screenbar_front_brightness
+        name: Front brightness
+        icon: mdi:brightness-6
+        color: amber
+        features_position: bottom
+        features:
+          - type: numeric-input
+            style: slider
+
+      - type: tile
+        entity: input_number.office_screenbar_back_brightness
+        name: Back brightness
+        icon: mdi:brightness-6
+        color: deep-orange
+        features_position: bottom
+        features:
+          - type: numeric-input
+            style: slider
+
+      - type: tile
+        entity: input_number.office_screenbar_color_temperature
+        name: Color temperature
+        icon: mdi:thermometer-lines
+        color: blue
+        features_position: bottom
+        features:
+          - type: numeric-input
+            style: slider
+
+      - type: heading
+        heading: Presence
+        heading_style: subtitle
+        icon: mdi:motion-sensor
+
+      - type: tile
+        entity: input_boolean.office_screenbar_ultrasonic_sensor
+        name: Automatic presence mode
+        icon: mdi:motion-sensor
+        color: blue
+        hide_state: true
+        vertical: false
+        tap_action:
+          action: toggle

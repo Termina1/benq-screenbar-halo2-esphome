@@ -1,0 +1,373 @@
+input_boolean:
+  office_screenbar_power:
+    name: ScreenBar power
+    icon: mdi:monitor-shimmer
+  office_screenbar_front_lamp:
+    name: ScreenBar front lamp
+    icon: mdi:lightbulb-on-outline
+  office_screenbar_back_lamp:
+    name: ScreenBar back lamp
+    icon: mdi:wall-sconce-flat-outline
+  office_screenbar_ultrasonic_sensor:
+    name: ScreenBar ultrasonic sensor
+    icon: mdi:motion-sensor
+  office_screenbar_receiving:
+    name: ScreenBar receiving state
+    icon: mdi:sync
+    initial: false
+
+input_number:
+  office_screenbar_front_brightness:
+    name: ScreenBar front brightness
+    icon: mdi:brightness-6
+    min: 1
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+  office_screenbar_back_brightness:
+    name: ScreenBar back brightness
+    icon: mdi:brightness-6
+    min: 1
+    max: 100
+    step: 1
+    unit_of_measurement: "%"
+    mode: slider
+  office_screenbar_color_temperature:
+    name: ScreenBar color temperature
+    icon: mdi:thermometer-lines
+    min: 2700
+    max: 6500
+    step: 25
+    unit_of_measurement: K
+    mode: slider
+
+sensor:
+  - platform: rest
+    name: Office ScreenBar bridge state
+    unique_id: office_screenbar_bridge_state
+    resource: "http://screenbar-halo2/text_sensor/Lamp%20state"
+    value_template: "{{ value_json.value }}"
+    scan_interval: 1
+    timeout: 2
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+
+rest_command:
+  office_screenbar_power_on:
+    url: "http://screenbar-halo2/switch/Power/turn_on"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_power_off:
+    url: "http://screenbar-halo2/switch/Power/turn_off"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_front_on:
+    url: "http://screenbar-halo2/switch/Front%20lamp/turn_on"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_front_off:
+    url: "http://screenbar-halo2/switch/Front%20lamp/turn_off"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_back_on:
+    url: "http://screenbar-halo2/switch/Back%20lamp/turn_on"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_back_off:
+    url: "http://screenbar-halo2/switch/Back%20lamp/turn_off"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_ultrasonic_on:
+    url: "http://screenbar-halo2/switch/Ultrasonic%20sensor/turn_on"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_ultrasonic_off:
+    url: "http://screenbar-halo2/switch/Ultrasonic%20sensor/turn_off"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_set_front_brightness:
+    url: "http://screenbar-halo2/number/Front%20brightness/set?value={{ value | int }}"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_set_back_brightness:
+    url: "http://screenbar-halo2/number/Back%20brightness/set?value={{ value | int }}"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_set_color_temperature:
+    url: "http://screenbar-halo2/number/Color%20temperature/set?value={{ value | int }}"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+  office_screenbar_resend:
+    url: "http://screenbar-halo2/button/Resend%20current%20state/press"
+    method: POST
+    payload: ""
+    authentication: basic
+    username: !secret screenbar_web_username
+    password: !secret screenbar_web_password
+
+script:
+  office_screenbar_sync:
+    alias: Office ScreenBar sync all controls
+    mode: restart
+    sequence:
+      # Number updates intentionally wake their corresponding ESPHome lamp.
+      # Apply values first, then enforce the desired lamp and power states.
+      - action: rest_command.office_screenbar_set_front_brightness
+        data:
+          value: "{{ states('input_number.office_screenbar_front_brightness') }}"
+      - action: rest_command.office_screenbar_set_back_brightness
+        data:
+          value: "{{ states('input_number.office_screenbar_back_brightness') }}"
+      - action: rest_command.office_screenbar_set_color_temperature
+        data:
+          value: "{{ states('input_number.office_screenbar_color_temperature') }}"
+      - choose:
+          - conditions: "{{ is_state('input_boolean.office_screenbar_front_lamp', 'on') }}"
+            sequence:
+              - action: rest_command.office_screenbar_front_on
+        default:
+          - action: rest_command.office_screenbar_front_off
+      - choose:
+          - conditions: "{{ is_state('input_boolean.office_screenbar_back_lamp', 'on') }}"
+            sequence:
+              - action: rest_command.office_screenbar_back_on
+        default:
+          - action: rest_command.office_screenbar_back_off
+      - choose:
+          - conditions: "{{ is_state('input_boolean.office_screenbar_ultrasonic_sensor', 'on') }}"
+            sequence:
+              - action: rest_command.office_screenbar_ultrasonic_on
+        default:
+          - action: rest_command.office_screenbar_ultrasonic_off
+      - choose:
+          - conditions: "{{ is_state('input_boolean.office_screenbar_power', 'on') }}"
+            sequence:
+              - action: rest_command.office_screenbar_power_on
+        default:
+          - action: rest_command.office_screenbar_power_off
+      - action: rest_command.office_screenbar_resend
+
+automation:
+  - id: office_screenbar_power_control
+    alias: "Office: ScreenBar power control"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.office_screenbar_power
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_screenbar_receiving
+        state: "off"
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - action: rest_command.office_screenbar_power_on
+        default:
+          - action: rest_command.office_screenbar_power_off
+
+  - id: office_screenbar_front_control
+    alias: "Office: ScreenBar front lamp control"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.office_screenbar_front_lamp
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_screenbar_receiving
+        state: "off"
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - action: rest_command.office_screenbar_front_on
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.office_screenbar_power
+        default:
+          - action: rest_command.office_screenbar_front_off
+
+  - id: office_screenbar_back_control
+    alias: "Office: ScreenBar back lamp control"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.office_screenbar_back_lamp
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_screenbar_receiving
+        state: "off"
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - action: rest_command.office_screenbar_back_on
+              - action: input_boolean.turn_on
+                target:
+                  entity_id: input_boolean.office_screenbar_power
+        default:
+          - action: rest_command.office_screenbar_back_off
+
+  - id: office_screenbar_ultrasonic_control
+    alias: "Office: ScreenBar ultrasonic sensor control"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_boolean.office_screenbar_ultrasonic_sensor
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_screenbar_receiving
+        state: "off"
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'on' }}"
+            sequence:
+              - action: rest_command.office_screenbar_ultrasonic_on
+        default:
+          - action: rest_command.office_screenbar_ultrasonic_off
+
+  - id: office_screenbar_front_brightness_control
+    alias: "Office: ScreenBar front brightness control"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_number.office_screenbar_front_brightness
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_screenbar_receiving
+        state: "off"
+    action:
+      - delay:
+          milliseconds: 250
+      - action: rest_command.office_screenbar_set_front_brightness
+        data:
+          value: "{{ trigger.to_state.state }}"
+      - action: input_boolean.turn_on
+        target:
+          entity_id:
+            - input_boolean.office_screenbar_power
+            - input_boolean.office_screenbar_front_lamp
+
+  - id: office_screenbar_back_brightness_control
+    alias: "Office: ScreenBar back brightness control"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_number.office_screenbar_back_brightness
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_screenbar_receiving
+        state: "off"
+    action:
+      - delay:
+          milliseconds: 250
+      - action: rest_command.office_screenbar_set_back_brightness
+        data:
+          value: "{{ trigger.to_state.state }}"
+      - action: input_boolean.turn_on
+        target:
+          entity_id:
+            - input_boolean.office_screenbar_power
+            - input_boolean.office_screenbar_back_lamp
+
+  - id: office_screenbar_color_temperature_control
+    alias: "Office: ScreenBar color temperature control"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: input_number.office_screenbar_color_temperature
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_screenbar_receiving
+        state: "off"
+    action:
+      - delay:
+          milliseconds: 250
+      - action: rest_command.office_screenbar_set_color_temperature
+        data:
+          value: "{{ trigger.to_state.state }}"
+
+  - id: office_screenbar_receive_state
+    alias: "Office: receive ScreenBar state"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.office_screenbar_bridge_state
+    condition:
+      - condition: template
+        value_template: >-
+          {{ trigger.to_state.state not in ['unknown', 'unavailable', '']
+             and trigger.to_state.state.startswith('{') }}
+    action:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.office_screenbar_receiving
+      - variables:
+          radio: "{{ trigger.to_state.state | from_json }}"
+      - action: "input_boolean.turn_{{ 'on' if radio.power else 'off' }}"
+        target:
+          entity_id: input_boolean.office_screenbar_power
+      - action: "input_boolean.turn_{{ 'on' if radio.front else 'off' }}"
+        target:
+          entity_id: input_boolean.office_screenbar_front_lamp
+      - action: "input_boolean.turn_{{ 'on' if radio.back else 'off' }}"
+        target:
+          entity_id: input_boolean.office_screenbar_back_lamp
+      - action: "input_boolean.turn_{{ 'on' if radio.pir else 'off' }}"
+        target:
+          entity_id: input_boolean.office_screenbar_ultrasonic_sensor
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.office_screenbar_front_brightness
+        data:
+          value: "{{ radio.front_brightness }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.office_screenbar_back_brightness
+        data:
+          value: "{{ radio.back_brightness }}"
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.office_screenbar_color_temperature
+        data:
+          value: "{{ radio.temperature }}"
+      - delay:
+          milliseconds: 500
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.office_screenbar_receiving

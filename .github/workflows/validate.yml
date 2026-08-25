@@ -1,0 +1,33 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  protocol-and-esphome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install ESPHome
+        run: pip install esphome==2026.4.4
+      - name: Protocol vectors
+        run: python -m unittest discover -s tests -v
+      - name: Create compile-only secrets
+        run: |
+          cat > secrets.yaml <<'EOF'
+          wifi_ssid: "compile-only"
+          wifi_password: "compile-only-password"
+          fallback_password: "compile-only-password"
+          ota_password: "compile-only-password"
+          api_encryption_key: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+          web_username: "screenbar"
+          web_password: "compile-only-password"
+          EOF
+      - name: Validate ESPHome configuration
+        run: esphome config screenbar-halo2.yaml
+      - name: Compile firmware
+        run: esphome compile screenbar-halo2.yaml

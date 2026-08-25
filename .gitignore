@@ -1,0 +1,8 @@
+secrets.yaml
+.esphome/
+.vscode/
+.DS_Store
+*.bin
+*.elf
+__pycache__/
+*.py[cod]
